@@ -2,6 +2,7 @@ from __future__ import unicode_literals, print_function
 import os
 from zhihu_oauth import ZhihuClient
 import json
+from db.mongo import User
 
 TOKEN_FILE = 'token.pkl'
 
@@ -35,8 +36,13 @@ def travelUser(user):
     print('-------------\n')
 
 me = client.me()
+user = User(me)
+user.save_if_not_exist()
+
 #travelUser(me)
+'''
 for k in [a for a in dir(me) if not a.startswith('__')]:
     attr = getattr(me,k)
     if not callable(attr) and attr is not None:
         print('\'%s\' : %s' % (k, attr))
+'''

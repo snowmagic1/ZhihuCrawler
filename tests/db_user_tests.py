@@ -4,6 +4,7 @@ sys.path.insert(0, os.getcwd())
 
 import unittest
 from db.mongo import User 
+from mongoengine import *
 
 class TestUsersDB(unittest.TestCase):
 
