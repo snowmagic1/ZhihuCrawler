@@ -1,33 +1,9 @@
-from mongoengine import *
+from pymongo import MongoClient
 
-connect('ZhiHu')
+client = MongoClient()
+db = client.test
 
-class User(Document):
-    answer_count = IntField()
-    articles_count = IntField()
-    created_at = DateTimeField()
-    description = StringField()
-    email = StringField()
-    favorite_count = IntField()
-    favorited_count = IntField()
-    follower_count = IntField()
-    following_count = IntField()
-    following_question_count = IntField()
-    following_topic_count = IntField()
-    friendly_score = IntField()
-    gender = BooleanField()
-    headline = StringField()
-    id = StringField()
-    is_active = BooleanField()
-    is_baned = BooleanField()
-    is_locked = BooleanField()
-    name = StringField()
-    question_count = IntField()
-    shared_count = IntField()
-    thanked_count = IntField()
-    uid = StringField()
-    voteup_count = IntField()
-
+class User:
     def __init__(self, user):
         self._user = user
 
@@ -36,8 +12,15 @@ class User(Document):
         db.users.delete_many({})
 
     def save_if_not_exist(self):
-        print('[db] finding id = [%s]' % self._user.id)
+        print('[db] finding id = [%s]' % self._user['id'])
+        cursor = db.users.find({'id': self._user['id']}).limit(1)
+
+        if(cursor.count() == 0):
+            db.users.insert_one(self._user)
     
     @staticmethod
     def find_by_id(id):
         print('[db] find_by_id = [%s]' % id)
+        user = db.users.find_one({'id': id})
+
+        return user
