@@ -38,7 +38,7 @@ class UserDB:
                 pass
             else:
                 attr = getattr(user,k)
-                if not callable(attr) and attr is not None:
+                if not callable(attr) and bool(attr):
                     user_dict[k] = attr
 
         return user_dict
@@ -55,20 +55,16 @@ class UserDB:
 
     def find_by_id(self, id):
         print('[db] find_by_id = [%s]' % id)
-        user = self._collection.find_one({'id': id})
+        users = self._collection.find({'id': id})
 
-        return user
+        return users
 
-    def save_if_not_exist(self, user):
+    def save(self, user):
         user_dict = {}
         if isinstance(user, dict):
             user_dict = user
         else:
             user_dict = self.ToDict(user)
 
-        print('[db] finding id = [%s]' % user_dict['id'])
-        cursor = self._collection.find({'id': user_dict['id']}).limit(1)
-
-        if(cursor.count() == 0):
-            self._collection.insert_one(user_dict)
+        self._collection.replace_one({'id': user_dict['id']}, user_dict, True)
     

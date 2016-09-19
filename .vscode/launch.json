@@ -7,7 +7,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "program": "${workspaceRoot}/test.py",
+            "program": "${workspaceRoot}/run.py",
             "console": "integratedTerminal",
             "debugOptions": [
                 "WaitOnAbnormalExit",

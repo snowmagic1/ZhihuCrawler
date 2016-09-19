@@ -53,10 +53,16 @@ class TestUsersDB(unittest.TestCase):
         userdb.clear()
 
         user = self.test_user()
-        userdb.save_if_not_exist(user)
+        userdb.save(user)
 
-        retrivedUser = userdb.find_by_id(user['id'])
-        self.assertIsNotNone(retrivedUser)
+        retrivedUsers = userdb.find_by_id(user['id'])
+        self.assertEqual(1, retrivedUsers.count())
+
+        user['answer_count'] = 5
+        userdb.save(user)
+        retrivedUsers = userdb.find_by_id(user['id'])
+        self.assertEqual(1, retrivedUsers.count())
+        self.assertEqual(5, retrivedUsers.next()['answer_count'])
 
 if __name__ == '__main__':
     unittest.main()
