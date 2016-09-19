@@ -7,7 +7,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "program": "${workspaceRoot}/login.py",
+            "program": "${workspaceRoot}/test.py",
             "console": "integratedTerminal",
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -20,8 +20,9 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "program": "${workspaceRoot}/db_user_tests.py",
+            "program": "${workspaceRoot}/tests/db_user_tests.py",
             "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit"

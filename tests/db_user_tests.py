@@ -3,8 +3,7 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 import unittest
-from db.mongo import User 
-from mongoengine import *
+from db.user_db import UserDB
 
 class TestUsersDB(unittest.TestCase):
 
@@ -49,13 +48,14 @@ class TestUsersDB(unittest.TestCase):
         return user
 
     def test_save(self):
-        User.clear()
+        userdb = UserDB('', 'zhihutest')
+
+        userdb.clear()
 
         user = self.test_user()
-        user_dbo = User(user)
-        user_dbo.save_if_not_exist()
+        userdb.save_if_not_exist(user)
 
-        retrivedUser = User.find_by_id(user['id'])
+        retrivedUser = userdb.find_by_id(user['id'])
         self.assertIsNotNone(retrivedUser)
 
 if __name__ == '__main__':
