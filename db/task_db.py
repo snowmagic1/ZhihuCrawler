@@ -21,12 +21,17 @@ class TaskDB:
         self._db = self._conn[database]
         self. _collection = self._db[TaskDB._collectionName]
     
-    def insertNew(self, id, type):
+    def insertNew(self, id, type, total):
+        if total == 0:
+            return
+            
         ret = self._collection.insert_one({
             'id':id, 
             'type':type.name,
             'retry':0,
             'state':TaskState.Active.name,
+            'total': total,
+            'done':0,
             'scheduledTime':str(datetime.datetime.now())})
 
     def findExistingTask(self, id, type):

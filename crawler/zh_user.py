@@ -15,10 +15,5 @@ class UserFetcher:
     def run(self, userid):
         user = zhihuClient.people(userid)
         self._userDB.save(user)
-        self._scheduler.QueueItem(userid, TaskType.People_Followers)
-        self._scheduler.QueueItem(userid, TaskType.People_Followings)
-
-# user = zhihuClient.people('c4c8a4b3ac95dcb917a54ef945483c59')
-#me = client.me()
-#user = User(me)
-#user.save_if_not_exist()
+        self._scheduler.QueueItem(userid, TaskType.People_Followers, user['follower_count'])
+        self._scheduler.QueueItem(userid, TaskType.People_Followings, user['following_count'])

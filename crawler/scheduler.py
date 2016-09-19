@@ -5,10 +5,13 @@ class Scheduler:
     def __init__(self):
         self._taskdb = TaskDB('')
     
-    def QueueItem(self, id, taskType):
+    def QueueItem(self, id, taskType, total):
+        if(total == 0):
+            return
+
         exists = self._taskdb.exists(id, taskType)
 
         if(exists):
             print('task [%s] already exists' % id)
         else:
-            self._taskdb.insertNew(id, taskType)
+            self._taskdb.insertNew(id, taskType, total)
