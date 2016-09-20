@@ -15,5 +15,5 @@ class UserFetcher:
     def run(self, userid):
         user = zhihuClient.people(userid)
         self._userDB.save(user)
-        self._scheduler.QueueItem(userid, TaskType.People_Followers, user['follower_count'])
-        self._scheduler.QueueItem(userid, TaskType.People_Followings, user['following_count'])
+        self._scheduler.QueueItem(userid, TaskType.People_Followers, user.follower_count)
+        self._scheduler.QueueItem(userid, TaskType.People_Followings, user.following_count)

@@ -1,5 +1,6 @@
 from enum import Enum
 from pymongo import MongoClient
+from pymongo import ReturnDocument
 import datetime
 
 class TaskType(Enum):
@@ -24,7 +25,7 @@ class TaskDB:
     def insertNew(self, id, type, total):
         if total == 0:
             return
-            
+
         ret = self._collection.insert_one({
             'id':id, 
             'type':type.name,
@@ -32,7 +33,10 @@ class TaskDB:
             'state':TaskState.Active.name,
             'total': total,
             'done':0,
-            'scheduledTime':str(datetime.datetime.now())})
+            'createdOn':str(datetime.datetime.now()),
+            'startTime':'',
+            'endTime':''
+            })
 
     def findExistingTask(self, id, type):
         doc = self._collection.find_one({'id':id, 'type':type.name})
@@ -44,3 +48,14 @@ class TaskDB:
 
     def clear(self):
         self._collection.delete_many({})
+
+    def findActiveTask(self):
+        task = self._collection.find_one_and_update(
+                    {'state': TaskState.Active.name},
+                    {'$set': {'startTime': str(datetime.datetime.now())}, 
+                     '$set': {'state':TaskState.Running.name}
+                    },
+                    return_document=ReturnDocument.AFTER
+                )
+        
+        return task

@@ -46,6 +46,28 @@ class TestTaskDB(unittest.TestCase):
         taskDB.insertNew(id, type, 0)
         self.assertEqual(False, taskDB.exists(id, type))
 
+    def test_findActiveTask(self):
+        taskDB = TaskDB('', 'zhihutest')
+        taskDB.clear()
+
+        task = taskDB.findActiveTask()
+        self.assertIsNone(task)
+
+        id = 'test_findActiveTask'
+        type = TaskType.People_Followers
+        total = 5
+
+        taskDB.insertNew(id, type, total)
+        self.assertEqual(True, taskDB.exists(id, type))
+        task = taskDB.findActiveTask()
+        self.assertIsNotNone(task)
+        self.assertEqual(id, task['id'])
+        self.assertEqual(type.name, task['type'])
+        self.assertEqual(0, task['retry'])
+        self.assertEqual(0, task['done'])
+        self.assertEqual(total, task['total'])
+        self.assertEqual(TaskState.Running.name, task['state'])
+
 if __name__ == '__main__':
     unittest.main()
 
