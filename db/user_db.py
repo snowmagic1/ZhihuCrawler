@@ -39,14 +39,18 @@ class UserDB:
             else:
                 attr = getattr(user,k)
                 if not callable(attr) and bool(attr):
-                    user_dict[k] = attr
+                    if k == 'business':
+                        user_dict[k] = attr.raw_data()
+                    else:    
+                        user_dict[k] = attr
 
         return user_dict
 
     def ToString(self, user):
         text = ''
-        for k in self.ToDict(user):
-            text += ('\'%s\' : %s' % (k, self.Dict[k]))
+        user_dict = self.ToDict(user)
+        for k in user_dict:
+            text += ('\'%s\' : %s <%s>\n' % (k, user_dict[k], type(user_dict[k])))
             
         return text
 

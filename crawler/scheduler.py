@@ -6,7 +6,7 @@ class Scheduler:
         self._taskdb = TaskDB('')
     
     def QueueItem(self, id, taskType, total):
-        if(total == 0):
+        if(taskType is not TaskType.People and total == 0):
             return
 
         exists = self._taskdb.exists(id, taskType)

@@ -4,8 +4,9 @@ from pymongo import ReturnDocument
 import datetime
 
 class TaskType(Enum):
-    People_Followings = 0,
-    People_Followers = 1
+    People = 0,
+    People_Followings = 1,
+    People_Followers = 2
 
 class TaskState(Enum):
     Active = 0,
@@ -23,20 +24,32 @@ class TaskDB:
         self. _collection = self._db[TaskDB._collectionName]
     
     def insertNew(self, id, type, total):
-        if total == 0:
+        if type is not TaskType.People and total == 0:
             return
 
-        ret = self._collection.insert_one({
-            'id':id, 
-            'type':type.name,
-            'retry':0,
-            'state':TaskState.Active.name,
-            'total': total,
-            'done':0,
-            'createdOn':str(datetime.datetime.now()),
-            'startTime':'',
-            'endTime':''
-            })
+        ret = self._collection.find_one_and_update(
+            {
+                'type':type.name,
+                'id':id
+            },
+            {
+                '$setOnInsert':
+                {
+                'id':id, 
+                'type':type.name,
+                'retry':0,
+                'state':TaskState.Active.name,
+                'total': total,
+                'done':0,
+                'createdOn':str(datetime.datetime.now()),
+                'startTime':'',
+                'endTime':''
+                }
+            },
+            upsert=True
+            )
+
+        return ret
 
     def findExistingTask(self, id, type):
         doc = self._collection.find_one({'id':id, 'type':type.name})

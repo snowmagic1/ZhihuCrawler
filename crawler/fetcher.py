@@ -11,14 +11,47 @@ class Fetcher:
     def __init__(self):
         self._client = zhihuClient
         self._taskdb = TaskDB('')
+        self._userDB = UserDB('') 
+        self._scheduler = Scheduler()
+        self._done = False
+        self._index = 0;
 
     def run(self):
-        task = self._taskdb.findActiveTask()
+        
+        while not self._done:
+            task = self._taskdb.findActiveTask()
+            if task is None:
+                print('no active tasks, sleep for 10 seconds')
+                time.sleep(10)
+            else:
+                self.processTask(task)
+    
+    def processTask(self, task):
+        typeStr = task['type']
+        type = TaskType.__members__[typeStr]
+        id = task['id']
+        print('[fetcher] %s: %s' % (type.name, id))
 
-        if task is None:
-            print('no active tasks, sleep for 10 seconds')
-            time.sleep(10)
+        if type == TaskType.People:
+            user = self._client.people(id)
+
+            self._userDB.save(user)
+            self._scheduler.QueueItem(id, TaskType.People_Followers, user.follower_count)
+            self._scheduler.QueueItem(id, TaskType.People_Followings, user.following_count)
+
+        elif type == TaskType.People_Followers:
+            user = self._client.people(id)
+
+            for follower in user.followers:
+                print('-----------------')
+                print('%d [Fetcher] Followers: %s' % (self._index, follower.id))
+                self._index += 1
+                print(self._userDB.ToString(follower))
+                print('-----------------')
+
+                self._userDB.save(follower)
+                self._scheduler.QueueItem(follower.id, TaskType.People_Followers, follower.follower_count)
+                self._scheduler.QueueItem(follower.id, TaskType.People_Followings, follower.following_count)
+        
         else:
-            typeStr = task['type']
-            type = TaskType.__members__[typeStr]
-            print('[fetcher] %s: %s' % (type.name, task['id']))
+            print('[Fetcher]: unknown task type %s' % type)
