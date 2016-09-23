@@ -1,0 +1,1 @@
+python -m tests.db_tasks_tests TestTaskDB.test_insertNew

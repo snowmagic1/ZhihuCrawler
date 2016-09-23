@@ -5,6 +5,13 @@ SKIP_FIELDS = [
     '_session'
 ]
 
+RAW_DATA_FIELDS = [
+    'business',
+    'educations',
+    'employments',
+    'locations'
+]
+
 class GeneratorFileds(Enum):
     Followers = 'followers'
     Followings = 'followings' 
@@ -39,7 +46,7 @@ class UserDB:
             else:
                 attr = getattr(user,k)
                 if not callable(attr) and bool(attr):
-                    if k == 'business':
+                    if k in RAW_DATA_FIELDS:
                         user_dict[k] = attr.raw_data()
                     else:    
                         user_dict[k] = attr

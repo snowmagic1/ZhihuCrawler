@@ -36,22 +36,28 @@ class Fetcher:
             user = self._client.people(id)
 
             self._userDB.save(user)
-            self._scheduler.QueueItem(id, TaskType.People_Followers, user.follower_count)
+            # self._scheduler.QueueItem(id, TaskType.People_Followers, user.follower_count)
             self._scheduler.QueueItem(id, TaskType.People_Followings, user.following_count)
 
         elif type == TaskType.People_Followers:
             user = self._client.people(id)
+            self.processFollowersOrFollowings(id, user.followers, type)
 
-            for follower in user.followers:
-                print('-----------------')
-                print('%d [Fetcher] Followers: %s' % (self._index, follower.id))
-                self._index += 1
-                print(self._userDB.ToString(follower))
-                print('-----------------')
+        elif type == TaskType.People_Followings:
+            user = self._client.people(id)
+            self.processFollowersOrFollowings(id, user.followings, type)
 
-                self._userDB.save(follower)
-                self._scheduler.QueueItem(follower.id, TaskType.People_Followers, follower.follower_count)
-                self._scheduler.QueueItem(follower.id, TaskType.People_Followings, follower.following_count)
-        
         else:
             print('[Fetcher]: unknown task type %s' % type)
+
+    def processFollowersOrFollowings(self, id, userCollection, type):
+        for follower in userCollection:
+            print('-----------------')
+            print('%d [Fetcher] %s: %s' % (self._index, type.name, follower.id))
+            self._index += 1
+            # print(self._userDB.ToString(follower))
+            print('-----------------')
+
+            self._userDB.save(follower)
+            # self._scheduler.QueueItem(follower.id, TaskType.People_Followers, follower.follower_count)
+            # self._scheduler.QueueItem(follower.id, TaskType.People_Followings, follower.following_count)

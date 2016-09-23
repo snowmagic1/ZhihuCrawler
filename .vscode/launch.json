@@ -15,12 +15,26 @@
             ]
         },
         {
-            "name": "Test",
+            "name": "Test_User",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "program": "${workspaceRoot}/tests/db_user_tests.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}",
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit"
+            ]
+        },
+        {
+            "name": "Test_Task",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "program": "${workspaceRoot}/tests/db_tasks_tests.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceRoot}",
             "debugOptions": [
