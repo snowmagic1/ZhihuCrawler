@@ -76,6 +76,8 @@ class TestTaskDB(unittest.TestCase):
         self.assertEqual(total, task['total'])
         self.assertEqual(TaskState.Running.name, task['state'])
 
+        return task
+
     def test_insertLargeTotalTask(self):
         id = 'test_insertLargeTotalTask'
         type = TaskType.People_Followers
@@ -111,7 +113,16 @@ class TestTaskDB(unittest.TestCase):
         self.assertEqual(200, doc['start'])
         self.assertEqual(True, doc['isLast'])
         self.assertEqual(TaskState.Active.name, doc['state'])
-        
+
+    def test_completeTask(self):
+        task = self.test_findActiveTask()
+        self._taskDB.completeTask(task['_id'])
+
+        tasks = self._taskDB.findTasks(task['id'], TaskType.People_Followers)
+        self.assertEqual(1, tasks.count())
+        task = tasks.next()
+        self.assertEqual(TaskState.Completed.name, task['state'])
+
 if __name__ == '__main__':
     unittest.main()
 

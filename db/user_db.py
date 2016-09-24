@@ -78,7 +78,12 @@ class UserDB:
             user_dict = self.ToDict(user)
 
         result = self._collection.replace_one({'id': user_dict['id']}, user_dict, True)
-        if result.modified_count != 1:
-            print('[userDB]: Failed to save [%s]' % user_dict['id'])
+        if result.modified_count == 0:
+            if result.upserted_id is None:
+                print('[userDB]: Failed to save [%s]' % user_dict['id'])
+            else:
+                print('[userDB]: [%s] inserted' % result.upserted_id)
+        else:
+            print('[userDB]: [%s] replaced' % user_dict['id'])
         
     

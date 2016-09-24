@@ -4,6 +4,7 @@ from db.user_db import UserDB
 from .scheduler import Scheduler
 from .zh_login import zhihuClient
 from db.task_db import TaskType, TaskDB
+from db.user_follower_db import UserFollowerDB
 import time
 import config
 
@@ -13,6 +14,7 @@ class Fetcher:
         self._client = zhihuClient
         self._taskdb = TaskDB('')
         self._userDB = UserDB('') 
+        self._userFollowerDB = UserFollowerDB('')
         self._scheduler = Scheduler()
         self._done = False
 
@@ -59,19 +61,29 @@ class Fetcher:
 
         userCollection.jump(start)
         index = 0
-        for follower in userCollection:
+        userIDs = []
 
-            if not isLast and index == (iterationNum -1):
+        for user in userCollection:
+
+            if not isLast and index == (iterationNum):
                 print('[Fetcher] complete processing task')
                 break
 
             index += 1
 
             print('-----------------')
-            print('%d [Fetcher] %s: %s' % (index, type, follower.id))
+            print('%d [Fetcher] %s: %s' % (index, type, user.id))
             # print(self._userDB.ToString(follower))
+            userIDs.append(user.id)
+
+            # save to DB
+            self._userDB.save(user)
+            
+            # queue items
+            self._scheduler.QueueItem(user.id, TaskType.People_Followers, user.follower_count)
+            self._scheduler.QueueItem(user.id, TaskType.People_Followings, user.following_count)
+
             print('-----------------')
 
-            self._userDB.save(follower)
-            # self._scheduler.QueueItem(follower.id, TaskType.People_Followers, follower.follower_count)
-            # self._scheduler.QueueItem(follower.id, TaskType.People_Followings, follower.following_count)
+        self._userFollowerDB.save(user.id, type, userIDs)
+        self._taskdb.completeTask(task['_id'])

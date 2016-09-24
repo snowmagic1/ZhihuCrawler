@@ -64,6 +64,8 @@ class TaskDB:
 
             if inserted is None:
                 print('[taskDB]: Failed to insert [%s] [%s] [%d]' % (id, type.name, start))
+            else:
+                print('[taskDB]: Success inserted [%s] [%s] [%d]' % (id, type.name, start))
 
     def findTasks(self, id, type):
         return self._collection.find({'id':id, 'type':type.name})
@@ -85,3 +87,23 @@ class TaskDB:
                 )
         
         return task
+
+    def completeTask(self, taskId):
+        updated = self._collection.find_one_and_update(
+            {
+                '_id':taskId,
+            },
+            {
+                '$set':
+                {
+                'state':TaskState.Completed.name,
+                'endTime':str(datetime.datetime.now())
+                }
+            },
+            return_document=ReturnDocument.AFTER
+            )
+
+        if updated is None or updated['state'] != TaskState.Completed.name:
+            print('[taskDB]: Failed to complete task [%s]' % (taskId))
+        else:
+            print('[taskDB]: Success complete task [%s]' % (taskId))

@@ -7,7 +7,11 @@ from db.user_db import UserDB
 
 class TestUsersDB(unittest.TestCase):
 
-    def atest_save(self):
+    def setUp(self):
+        self._userDB = UserDB('', 'zhihutest')
+        self._userDB.clear()
+
+    def test_save(self):
         user = {
             'answer_count':1,
             'articles_count': 0,
@@ -45,17 +49,14 @@ class TestUsersDB(unittest.TestCase):
             'voteup_count' : 1
         }
 
-        userdb = UserDB('', 'zhihutest')
+        self._userDB.save(user)
 
-        userdb.clear()
-        userdb.save(user)
-
-        retrivedUsers = userdb.find_by_id(user['id'])
+        retrivedUsers = self._userDB.find_by_id(user['id'])
         self.assertEqual(1, retrivedUsers.count())
 
         user['answer_count'] = 5
-        userdb.save(user)
-        retrivedUsers = userdb.find_by_id(user['id'])
+        self._userDB.save(user)
+        retrivedUsers = self._userDB.find_by_id(user['id'])
         self.assertEqual(1, retrivedUsers.count())
         self.assertEqual(5, retrivedUsers.next()['answer_count'])
     
@@ -73,11 +74,9 @@ class TestUsersDB(unittest.TestCase):
                 }
         }
 
-        userdb = UserDB('', 'zhihutest')
-        userdb.clear()
-        userdb.save(user)
+        self._userDB.save(user)
 
-        retrivedUsers = userdb.find_by_id(user['id'])
+        retrivedUsers = self._userDB.find_by_id(user['id'])
         self.assertEqual(1, retrivedUsers.count())
 
 if __name__ == '__main__':
