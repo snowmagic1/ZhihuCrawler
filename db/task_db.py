@@ -1,6 +1,7 @@
 from enum import Enum
 from pymongo import MongoClient
 from pymongo import ReturnDocument
+import config
 import datetime
 
 class TaskType(Enum):
@@ -17,7 +18,7 @@ class TaskState(Enum):
 class TaskDB:
     _collectionName = 'tasks'
     _datetime_format = "%Y-%m-%d %H:%M"
-    _singleTaskTotal = 100
+    _singleTaskTotal = config.Task_Iteration_Item_Number
 
     def __init__(self, url, database='zhihu'):
         self._conn = MongoClient()
@@ -30,10 +31,10 @@ class TaskDB:
 
         taskNum = int(total/TaskDB._singleTaskTotal)
 
-        for i in (0, taskNum): 
+        for i in range(0, taskNum+1): 
 
-            start = i*taskNum
-            isLast = (i == taskNum - 1)
+            start = i*TaskDB._singleTaskTotal
+            isLast = (i == taskNum)
 
             inserted = self._collection.find_one_and_update(
             {
@@ -57,12 +58,15 @@ class TaskDB:
                 'endTime':''
                 }
             },
-            upsert=True
+            upsert=True,
+            return_document=ReturnDocument.AFTER
             )
 
+            if inserted is None:
+                print('[taskDB]: Failed to insert [%s] [%s] [%d]' % (id, type.name, start))
+
     def findTasks(self, id, type):
-        doc = self._collection.find_one({'id':id, 'type':type.name})
-        return doc
+        return self._collection.find({'id':id, 'type':type.name})
 
     def exists(self, id, type):
         cursor = self._collection.find({'id':id, 'type':type.name}).limit(1)

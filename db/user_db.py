@@ -77,5 +77,8 @@ class UserDB:
         else:
             user_dict = self.ToDict(user)
 
-        self._collection.replace_one({'id': user_dict['id']}, user_dict, True)
+        result = self._collection.replace_one({'id': user_dict['id']}, user_dict, True)
+        if result.modified_count != 1:
+            print('[userDB]: Failed to save [%s]' % user_dict['id'])
+        
     
