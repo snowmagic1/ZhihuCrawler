@@ -71,10 +71,13 @@ class TaskDB:
             if inserted is None:
                 logger.error('Failed to insert [%s] [%s] [%d]' % (id, type.name, start))
             else:
-                logger.info('inserted [%s] [%s] [%d]' % (id, type.name, start))
+                logger.debug('Task inserted [%s] [%s] start=[%d]' % (id, type.name, start))
 
     def findTasks(self, id, type):
         return self._collection.find({'id':id, 'type':type.name})
+
+    def findTaskById(self, taskId):
+        return self._collection.find_one({'_id':taskId})
 
     def exists(self, id, type):
         cursor = self._collection.find({'id':id, 'type':type.name}).limit(1)
@@ -94,7 +97,8 @@ class TaskDB:
         
         return task
 
-    def completeTask(self, taskId):
+    def completeTask(self, task):
+        taskId = task['_id']
         updated = self._collection.find_one_and_update(
             {
                 '_id':taskId,
@@ -137,6 +141,6 @@ class TaskDB:
             )
 
         if updated is None:
-            logger.error('Failed to fail task [%s]' % (taskId))
+            logger.error('Failed to fail task [%s]' % (task['id']))
         else:
-            logger.info('Success fail task [%s]' % (taskId))
+            logger.info('Success fail task [%s]' % (task['id']))

@@ -116,12 +116,42 @@ class TestTaskDB(unittest.TestCase):
 
     def test_completeTask(self):
         task = self.test_findActiveTask()
-        self._taskDB.completeTask(task['_id'])
+        self._taskDB.completeTask(task)
 
         tasks = self._taskDB.findTasks(task['id'], TaskType.People_Followers)
         self.assertEqual(1, tasks.count())
         task = tasks.next()
         self.assertEqual(TaskState.Completed.name, task['state'])
+
+    def test_failTask(self):
+        task = self.test_findActiveTask()
+
+        #1
+        self._taskDB.failTask(task)
+        task = self._taskDB.findTaskById(task['_id'])
+        self.assertIsNotNone(task)
+        self.assertEqual(TaskState.Active.name, task['state'])
+        self.assertEqual(1, int(task['retry']))
+
+        #2
+        self._taskDB.failTask(task)
+        task = self._taskDB.findTaskById(task['_id'])
+        self.assertIsNotNone(task)
+        self.assertEqual(TaskState.Active.name, task['state'])
+        self.assertEqual(2, int(task['retry']))
+
+        #3
+        self._taskDB.failTask(task)
+        task = self._taskDB.findTaskById(task['_id'])
+        self.assertIsNotNone(task)
+        self.assertEqual(TaskState.Active.name, task['state'])
+        self.assertEqual(3, int(task['retry']))
+
+        #4
+        self._taskDB.failTask(task)
+        task = self._taskDB.findTaskById(task['_id'])
+        self.assertIsNotNone(task)
+        self.assertEqual(TaskState.Aborted.name, task['state'])
 
 if __name__ == '__main__':
     unittest.main()

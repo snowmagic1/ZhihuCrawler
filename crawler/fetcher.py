@@ -36,17 +36,18 @@ class Fetcher:
             else:
                 try:
                     self.processTask(task)
-                except Exception, e:
+                except Exception:
                     logger.error('Failed to process task [%s] [%s]' % (task['type'], task['id']), exc_info=True)
+                    self._taskdb.failTask(task)
                     continue
 
-                self._taskdb.completeTask(task['_id'])
+                self._taskdb.completeTask(task)
 
     def processTask(self, task):
         typeStr = task['type']
         type = TaskType.__members__[typeStr]
         id = task['id']
-        logger.info('start to process task %s: %s' % (type.name, id))
+        logger.info('start to process task [%s] type: %s, id: %s' % (task['_id'], type.name, id))
 
         if type == TaskType.People:
             user = self._client.people(id)
@@ -66,7 +67,7 @@ class Fetcher:
         else:
             logger.error('unknown task type %s' % type)
 
-        logger.info('End processing task %s: %s' % (type.name, id))
+        logger.info('End processing task [%s]' % (task['_id']))
 
     def processPeople(self, id, userCollection, task):
 
@@ -79,17 +80,20 @@ class Fetcher:
         index = 0
         userIDs = []
 
+        logger.info('start processing %s, userid %s start %d isLast %d' % (type, id, start, isLast))
         for user in userCollection:
 
             if not isLast and index == (iterationNum):
-                logger.debug('[Fetcher] complete processing task')
+                logger.debug('complete processing %s, userid %s' % (type, id))
                 break
 
             index += 1
 
-            logger.debug('-----------------')
-            logger.info('%d %s: %s' % (index, type, user.id))
+            logger.info('#%d processing %s' % (index, user.id))
+            logger.debug('user id is %s' % user.id)
             userIDs.append(user.id)
+
+            logger.debug('start to save user')
 
             # save to DB
             self._userDB.save(user)
@@ -97,7 +101,5 @@ class Fetcher:
             # queue items
             self._scheduler.QueueItem(user.id, TaskType.People_Followers, user.follower_count)
             self._scheduler.QueueItem(user.id, TaskType.People_Followings, user.following_count)
-
-            logger.debug('-----------------')
 
         self._userFollowerDB.save(user.id, type, userIDs)

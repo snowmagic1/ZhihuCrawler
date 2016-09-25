@@ -1,1 +1,1 @@
-python -m tests.db_tasks_tests TestTaskDB.test_insertNew
+python -m tests.tests_taskDB TestTaskDB.test_failTask
