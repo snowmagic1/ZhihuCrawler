@@ -31,7 +31,7 @@ class TaskDB:
         self. _collection = self._db[TaskDB._collectionName]
     
     def insertNew(self, id, type, total):
-        if type is not TaskType.People and total == 0:
+        if total == 0:
             logger.debug('ignored task [%s] [%s] due to total is 0' % (id, type))
             return
 

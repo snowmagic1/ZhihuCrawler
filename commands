@@ -1,1 +1,4 @@
 python -m tests.tests_taskDB TestTaskDB.test_failTask
+
+
+docker run --name crawler --network=bridge -v /tmp/log/:/tmp/ snowmagic/zhihucrawler

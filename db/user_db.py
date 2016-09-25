@@ -72,6 +72,10 @@ class UserDB:
 
         return users
 
+    def exists(self, id):
+        cursor = self._collection.find({'id':id}).limit(1)
+        return cursor.count() == 1
+
     def save(self, user):
         user_dict = {}
         if isinstance(user, dict):

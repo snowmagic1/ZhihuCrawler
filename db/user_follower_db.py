@@ -15,6 +15,10 @@ class UserFollowerDB:
     def clear(self):
         self._collection.delete_many({})
 
+    def exists(self, id, type):
+        cursor = self._collection.find({'id':id, 'type':type.name}).limit(1)
+        return cursor.count() == 1
+        
     def save(self, id, type, userIds):
         result = self._collection.insert_one({
                 'id': id,

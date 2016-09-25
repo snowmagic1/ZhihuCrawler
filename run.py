@@ -40,7 +40,7 @@ userFollowerdb = UserFollowerDB('')
 userFollowerdb.clear()
 
 scheduler = Scheduler()
-scheduler.QueueItem('c4c8a4b3ac95dcb917a54ef945483c59', TaskType.People, -1)
+scheduler.QueueItem('c4c8a4b3ac95dcb917a54ef945483c59', TaskType.People, 1)
 
 f = Fetcher()
 f.run()
