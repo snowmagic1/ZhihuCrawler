@@ -1,5 +1,8 @@
 from enum import Enum
 from pymongo import MongoClient
+import logging
+
+logger = logging.getLogger('userFollowerDB')
 
 class UserFollowerDB:
     _collectionName = 'user_follower'
@@ -20,4 +23,6 @@ class UserFollowerDB:
                 })
 
         if result is None:
-            print('[UserFollowerDB]: Failed to save [%s]' % id)
+            logger.error('Failed to save [%s]' % id)
+        else:
+            logger.info('[%s] inserted' % id)

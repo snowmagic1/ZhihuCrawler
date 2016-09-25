@@ -1,5 +1,8 @@
 from enum import Enum
 from pymongo import MongoClient
+import logging
+
+logger = logging.getLogger('userDB')
 
 SKIP_FIELDS = [
     '_session'
@@ -65,7 +68,6 @@ class UserDB:
         self._collection.delete_many({})
 
     def find_by_id(self, id):
-        print('[db] find_by_id = [%s]' % id)
         users = self._collection.find({'id': id})
 
         return users
@@ -80,10 +82,10 @@ class UserDB:
         result = self._collection.replace_one({'id': user_dict['id']}, user_dict, True)
         if result.modified_count == 0:
             if result.upserted_id is None:
-                print('[userDB]: Failed to save [%s]' % user_dict['id'])
+                logger.error('Failed to save [%s]' % user_dict['id'])
             else:
-                print('[userDB]: [%s] inserted' % result.upserted_id)
+                logger.info('User [%s] inserted' % result.upserted_id)
         else:
-            print('[userDB]: [%s] replaced' % user_dict['id'])
+            logger.info('[userDB]: [%s] replaced' % user_dict['id'])
         
     

@@ -1,8 +1,13 @@
 from enum import Enum
+import datetime
+import logging
+
 from pymongo import MongoClient
 from pymongo import ReturnDocument
+
 import config
-import datetime
+
+logger = logging.getLogger('taskDB')
 
 class TaskType(Enum):
     People = 0,
@@ -27,6 +32,7 @@ class TaskDB:
     
     def insertNew(self, id, type, total):
         if type is not TaskType.People and total == 0:
+            logger.debug('ignored task [%s] [%s] due to total is 0' % (id, type))
             return
 
         taskNum = int(total/TaskDB._singleTaskTotal)
@@ -63,9 +69,9 @@ class TaskDB:
             )
 
             if inserted is None:
-                print('[taskDB]: Failed to insert [%s] [%s] [%d]' % (id, type.name, start))
+                logger.error('Failed to insert [%s] [%s] [%d]' % (id, type.name, start))
             else:
-                print('[taskDB]: Success inserted [%s] [%s] [%d]' % (id, type.name, start))
+                logger.info('inserted [%s] [%s] [%d]' % (id, type.name, start))
 
     def findTasks(self, id, type):
         return self._collection.find({'id':id, 'type':type.name})
@@ -104,6 +110,33 @@ class TaskDB:
             )
 
         if updated is None or updated['state'] != TaskState.Completed.name:
-            print('[taskDB]: Failed to complete task [%s]' % (taskId))
+            logger.error('Failed to complete task [%s]' % (taskId))
         else:
-            print('[taskDB]: Success complete task [%s]' % (taskId))
+            logger.info('Success complete task [%s]' % (taskId))
+    
+    def failTask(self, task):
+        retry = int(task['retry'])
+        update = {}
+
+        if retry >= config.Task_Max_Retry_Number:
+            logger.info('hit max retry count, abort task [%s] [%s]' % (task['type'], task['id']))
+            update = {'$set': {
+                        'state':TaskState.Aborted.name,
+                        'endTime':str(datetime.datetime.now())}}
+        else:
+            logger.info('set task [%s] [%s] to active to retry' % (task['type'], task['id']))
+            update = {'$set': {'state':TaskState.Active.name},
+                      '$inc': {'retry':1}}
+
+        updated = self._collection.find_one_and_update(
+            {
+                '_id':task['_id'],
+            },
+            update,
+            return_document=ReturnDocument.AFTER
+            )
+
+        if updated is None:
+            logger.error('Failed to fail task [%s]' % (taskId))
+        else:
+            logger.info('Success fail task [%s]' % (taskId))

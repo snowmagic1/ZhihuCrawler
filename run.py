@@ -1,8 +1,15 @@
+import logging
+
 from crawler.scheduler import Scheduler
 from crawler.fetcher import Fetcher
+
 from db.task_db import TaskType, TaskDB
 from db.user_db import UserDB
 from db.user_follower_db import UserFollowerDB
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
+# logger.setLevel(logging.DEBUG)
 
 userdb = UserDB('')
 userdb.clear()

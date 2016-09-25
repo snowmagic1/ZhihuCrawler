@@ -1,12 +1,20 @@
+# os
 import os
 import json
+import logging
+import time
+
+# zhihu_auth
+from .login import zhihuClient
+
+# this project
 from db.user_db import UserDB
 from .scheduler import Scheduler
-from .zh_login import zhihuClient
 from db.task_db import TaskType, TaskDB
 from db.user_follower_db import UserFollowerDB
-import time
 import config
+
+logger = logging.getLogger('fetcher')
 
 class Fetcher:
 
@@ -23,16 +31,22 @@ class Fetcher:
         while not self._done:
             task = self._taskdb.findActiveTask()
             if task is None:
-                print('no active tasks, sleep for 10 seconds')
+                logger.debug('no active tasks, sleep for 10 seconds')
                 time.sleep(10)
             else:
-                self.processTask(task)
-    
+                try:
+                    self.processTask(task)
+                except Exception, e:
+                    logger.error('Failed to process task [%s] [%s]' % (task['type'], task['id']), exc_info=True)
+                    continue
+
+                self._taskdb.completeTask(task['_id'])
+
     def processTask(self, task):
         typeStr = task['type']
         type = TaskType.__members__[typeStr]
         id = task['id']
-        print('[fetcher] %s: %s' % (type.name, id))
+        logger.info('start to process task %s: %s' % (type.name, id))
 
         if type == TaskType.People:
             user = self._client.people(id)
@@ -50,7 +64,9 @@ class Fetcher:
             self.processPeople(id, user.followings, task)
 
         else:
-            print('[Fetcher]: unknown task type %s' % type)
+            logger.error('unknown task type %s' % type)
+
+        logger.info('End processing task %s: %s' % (type.name, id))
 
     def processPeople(self, id, userCollection, task):
 
@@ -66,14 +82,13 @@ class Fetcher:
         for user in userCollection:
 
             if not isLast and index == (iterationNum):
-                print('[Fetcher] complete processing task')
+                logger.debug('[Fetcher] complete processing task')
                 break
 
             index += 1
 
-            print('-----------------')
-            print('%d [Fetcher] %s: %s' % (index, type, user.id))
-            # print(self._userDB.ToString(follower))
+            logger.debug('-----------------')
+            logger.info('%d %s: %s' % (index, type, user.id))
             userIDs.append(user.id)
 
             # save to DB
@@ -83,7 +98,6 @@ class Fetcher:
             self._scheduler.QueueItem(user.id, TaskType.People_Followers, user.follower_count)
             self._scheduler.QueueItem(user.id, TaskType.People_Followings, user.following_count)
 
-            print('-----------------')
+            logger.debug('-----------------')
 
         self._userFollowerDB.save(user.id, type, userIDs)
-        self._taskdb.completeTask(task['_id'])
