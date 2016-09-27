@@ -4,6 +4,7 @@ import logging
 
 from pymongo import MongoClient
 from pymongo import ReturnDocument
+import pymongo
 
 import config
 
@@ -29,7 +30,10 @@ class TaskDB:
         self._conn = MongoClient()
         self._db = self._conn[database]
         self. _collection = self._db[TaskDB._collectionName]
-    
+        self._collection.create_index([('id',pymongo.ASCENDING), ('type',pymongo.ASCENDING), ('start',pymongo.ASCENDING)])
+        numberOfSeconds = 60 * 60 * 24; # 60 sec * 60 min * 24 hours
+        self._collection.create_index([('endtime',pymongo.ASCENDING)], expireAfterSeconds=numberOfSeconds)
+
     def insertNew(self, id, type, total):
         if total == 0:
             logger.debug('ignored task [%s] [%s] due to total is 0' % (id, type))
@@ -74,7 +78,7 @@ class TaskDB:
                 logger.debug('Task inserted [%s] [%s] start=[%d]' % (id, type.name, start))
 
     def findTasks(self, id, type):
-        return self._collection.find({'id':id, 'type':type.name})
+        return self._collection.find({'id':id, 'type':type.name}).sort([('start',pymongo.ASCENDING)])
 
     def findTaskById(self, taskId):
         return self._collection.find_one({'_id':taskId})
