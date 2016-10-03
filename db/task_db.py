@@ -27,7 +27,11 @@ class TaskDB:
     _singleTaskTotal = config.Task_Iteration_Item_Number
 
     def __init__(self, url, database='zhihu'):
-        self._conn = MongoClient()
+        if url:
+            self._conn = MongoClient(url)
+        else:
+            self._conn = MongoClient()
+
         self._db = self._conn[database]
         self. _collection = self._db[TaskDB._collectionName]
         self._collection.create_index([('id',pymongo.ASCENDING), ('type',pymongo.ASCENDING), ('start',pymongo.ASCENDING)])
@@ -74,8 +78,9 @@ class TaskDB:
 
             if inserted is None:
                 logger.error('Failed to insert [%s] [%s] [%d]' % (id, type.name, start))
-            else:
-                logger.debug('Task inserted [%s] [%s] start=[%d]' % (id, type.name, start))
+                return
+
+        logger.debug('Task inserted [%s] [%s]' % (id, type.name))
 
     def findTasks(self, id, type):
         return self._collection.find({'id':id, 'type':type.name}).sort([('start',pymongo.ASCENDING)])

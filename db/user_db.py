@@ -5,7 +5,8 @@ import logging
 logger = logging.getLogger('userDB')
 
 SKIP_FIELDS = [
-    '_session'
+    '_session',
+    'pure_data'
 ]
 
 RAW_DATA_FIELDS = [
@@ -35,7 +36,11 @@ class UserDB:
     _collectionName = 'users'
    
     def __init__(self, url, database='zhihu'):
-        self._conn = MongoClient()
+        if url:
+            self._conn = MongoClient(url)
+        else:
+            self._conn = MongoClient()
+
         self._db = self._conn[database]
         self. _collection = self._db[UserDB._collectionName]
 

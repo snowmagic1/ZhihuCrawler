@@ -8,7 +8,11 @@ class UserFollowerDB:
     _collectionName = 'user_follower'
 
     def __init__(self, url, database='zhihu'):
-        self._conn = MongoClient()
+        if url:
+            self._conn = MongoClient(url)
+        else:
+            self._conn = MongoClient()
+
         self._db = self._conn[database]
         self. _collection = self._db[UserFollowerDB._collectionName]
     

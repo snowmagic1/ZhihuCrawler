@@ -19,12 +19,12 @@ logger = logging.getLogger('fetcher')
 
 class Fetcher:
 
-    def __init__(self):
+    def __init__(self, taskDBUrl, userDBUrl, UserFollowerDBUrl):
         self._client = zhihuClient
-        self._taskdb = TaskDB('')
-        self._userDB = UserDB('') 
-        self._userFollowerDB = UserFollowerDB('')
-        self._scheduler = Scheduler()
+        self._taskdb = TaskDB(taskDBUrl)
+        self._userDB = UserDB(userDBUrl) 
+        self._userFollowerDB = UserFollowerDB(UserFollowerDBUrl)
+        self._scheduler = Scheduler(taskDBUrl, userDBUrl, UserFollowerDBUrl)
         self._done = False
 
     def run(self):
@@ -43,7 +43,6 @@ class Fetcher:
                     continue
 
                 self._taskdb.completeTask(task)
-                logger.debug('complete processing task %s' % (task['_id']))
 
     def processTask(self, task):
         typeStr = task['type']
@@ -74,7 +73,7 @@ class Fetcher:
 
         end = datetime.datetime.now()
 
-        logger.info('End processing task [%s], duration [%s]ms' % (task['_id'], (end - start).microseconds))
+        logger.info('Complete task [%s], duration [%s]ms' % (task['_id'], (end - start).seconds))
 
     def processPeople(self, id, userCollection, task):
 

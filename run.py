@@ -3,6 +3,7 @@ import os
 import logging
 import logging.config
 import json
+import argparse
 
 from crawler.scheduler import Scheduler
 from crawler.fetcher import Fetcher
@@ -30,19 +31,32 @@ def setup_logging(
 
 setup_logging()
 
-userdb = UserDB('')
+parser = argparse.ArgumentParser()
+parser.add_argument("--mongodb", help="mongodb url",default=None)
+args = parser.parse_args()
+mongodbUrl = args.mongodb
+print('mongodb: [%s]' % mongodbUrl)
+
+userdb = UserDB(mongodbUrl)
 userdb.clear()
 
-taskdb = TaskDB('')
+taskdb = TaskDB(mongodbUrl)
 taskdb.clear()
 
-userFollowerdb = UserFollowerDB('')
+userFollowerdb = UserFollowerDB(mongodbUrl)
 userFollowerdb.clear()
 
-scheduler = Scheduler()
+scheduler = Scheduler(
+    taskDBUrl=mongodbUrl,
+    userDBUrl=mongodbUrl,
+    UserFollowerDBUrl=mongodbUrl)
+
 scheduler.QueueItem('c4c8a4b3ac95dcb917a54ef945483c59', TaskType.People, 1)
 
-f = Fetcher()
+f = Fetcher(    
+    taskDBUrl=mongodbUrl,
+    userDBUrl=mongodbUrl,
+    UserFollowerDBUrl=mongodbUrl)
 f.run()
 
 print('done')

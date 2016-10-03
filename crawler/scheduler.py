@@ -8,10 +8,10 @@ logger = logging.getLogger('scheduler')
 
 class Scheduler:
 
-    def __init__(self):
-        self._taskdb = TaskDB('')
-        self._userdb = UserDB('')
-        self._userFollowerdb = UserFollowerDB('')
+    def __init__(self, taskDBUrl, userDBUrl, UserFollowerDBUrl):
+        self._taskdb = TaskDB(taskDBUrl)
+        self._userdb = UserDB(userDBUrl)
+        self._userFollowerdb = UserFollowerDB(UserFollowerDBUrl)
 
     def QueueItem(self, id, taskType, total):
         if total == 0:
