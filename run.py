@@ -5,6 +5,7 @@ import logging.config
 import json
 import argparse
 
+import config
 from crawler.scheduler import Scheduler
 from crawler.fetcher import Fetcher
 
@@ -34,7 +35,10 @@ setup_logging()
 parser = argparse.ArgumentParser()
 parser.add_argument("--mongodb", help="mongodb url",default=None)
 args = parser.parse_args()
-mongodbUrl = args.mongodb
+
+mongodbUrl = config.MongoDB_Default_Url
+if not args.mongodb:
+    mongodbUrl = args.mongodb
 print('mongodb: [%s]' % mongodbUrl)
 
 userdb = UserDB(mongodbUrl)

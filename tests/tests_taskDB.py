@@ -9,7 +9,7 @@ import config
 class TestTaskDB(unittest.TestCase):        
 
     def setUp(self):
-        self._taskDB = TaskDB('', 'zhihutest')
+        self._taskDB = TaskDB(config.MongoDB_Default_Url, 'zhihutest')
         self._taskDB.clear()
 
     def test_insertNew(self):
@@ -32,42 +32,39 @@ class TestTaskDB(unittest.TestCase):
         self.assertEqual(TaskState.Active.name, doc['state'])
 
     def test_insertNewTwice(self):
-        taskDB = TaskDB('', 'zhihutest')
-        taskDB.clear()
+        self._taskDB.clear()
 
         id = 'test_insertNewTwice'
         type = TaskType.People_Followers
 
-        taskDB.insertNew(id, type, 5)
-        taskDB.insertNew(id, type, 5)
+        self._taskDB.insertNew(id, type, 5)
+        self._taskDB.insertNew(id, type, 5)
 
-        tasks = taskDB.findTasks(id, type)
+        tasks = self._taskDB.findTasks(id, type)
         self.assertEqual(1, tasks.count())
 
     def test_insertNewTotal0(self):
-        taskDB = TaskDB('', 'zhihutest')
-        taskDB.clear()
+        self._taskDB.clear()
 
         id = 'test_insertNewTotal0'
         type = TaskType.People_Followers
 
-        taskDB.insertNew(id, type, 0)
-        self.assertEqual(False, taskDB.exists(id, type))
+        self._taskDB.insertNew(id, type, 0)
+        self.assertEqual(False, self._taskDB.exists(id, type))
 
     def test_findActiveTask(self):
-        taskDB = TaskDB('', 'zhihutest')
-        taskDB.clear()
+        self._taskDB.clear()
 
-        task = taskDB.findActiveTask()
+        task = self._taskDB.findActiveTask()
         self.assertIsNone(task)
 
         id = 'test_findActiveTask'
         type = TaskType.People_Followers
         total = 5
 
-        taskDB.insertNew(id, type, total)
-        self.assertEqual(True, taskDB.exists(id, type))
-        task = taskDB.findActiveTask()
+        self._taskDB.insertNew(id, type, total)
+        self.assertEqual(True, self._taskDB.exists(id, type))
+        task = self._taskDB.findActiveTask()
         self.assertIsNotNone(task)
         self.assertEqual(id, task['id'])
         self.assertEqual(type.name, task['type'])

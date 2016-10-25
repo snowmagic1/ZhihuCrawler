@@ -22,20 +22,20 @@ __all__ = ["INVALID_CHARS", "remove_invalid_char", 'add_serial_number',
 def can_get_from(name, data):
     return name in data and not isinstance(data[name], (dict, list))
 
-DEFAULT_INVALID_CHARS = {'/', '\\', ':', '*', '?', '"', '<', '>', '|', '\r', '\n'}
+DEFAULT_INVALID_CHARS = {':', '*', '?', '"', '<', '>', '|', '\r', '\n'}
+EXTRA_CHAR_FOR_FILENAME = {'/', '\\'}
 
 
-def remove_invalid_char(dirty, invalid_chars=None):
+def remove_invalid_char(dirty, invalid_chars=None, for_path=False):
     if invalid_chars is None:
-        invalid_chars = DEFAULT_INVALID_CHARS
+        invalid_chars = set(DEFAULT_INVALID_CHARS)
     else:
         invalid_chars = set(invalid_chars)
         invalid_chars.update(DEFAULT_INVALID_CHARS)
-    clean = []
-    for c in dirty:
-        if c not in invalid_chars:
-            clean.append(c)
-    return ''.join(clean)
+    if not for_path:
+        invalid_chars.update(EXTRA_CHAR_FOR_FILENAME)
+
+    return ''.join([c for c in dirty if c not in invalid_chars]).strip()
 
 
 def add_serial_number(file_path, postfix):
@@ -160,7 +160,7 @@ def common_save(path, filename, content, default_filename, invalid_chars):
     filename = filename or 'untitled'
 
     path = path or '.'
-    path = remove_invalid_char(path, invalid_chars)
+    path = remove_invalid_char(path, invalid_chars, True)
     path = path or '.'
 
     if not os.path.isdir(path):

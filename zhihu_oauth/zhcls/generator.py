@@ -351,7 +351,7 @@ def generator_of(url_pattern, class_name=None):
             except AttributeError:
                 return func(*args, **kwargs)
 
-            # self._get_data()
+            self._get_data()
 
             return gen_cls(url_pattern.format(self.id), self._session)
 

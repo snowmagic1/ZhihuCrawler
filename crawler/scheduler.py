@@ -28,4 +28,4 @@ class Scheduler:
             logger.error('id [%s] type [%s] already exists' % (id, taskType.name))
         else:
             self._taskdb.insertNew(id, taskType, total)
-            logger.info('Queued task [%s] [%s]' % (id, taskType.name))
+            logger.debug('Queued task [%s] [%s]' % (id, taskType.name))

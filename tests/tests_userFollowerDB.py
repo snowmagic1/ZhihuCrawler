@@ -3,13 +3,15 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 import unittest
+import config
+
 from db.user_follower_db import UserFollowerDB
 from db.task_db import TaskDB,TaskState,TaskType
 
 class TestUserFollowerDB(unittest.TestCase):
     
     def setUp(self):
-        self._followerDB = UserFollowerDB('', 'zhihutest')
+        self._followerDB = UserFollowerDB(config.MongoDB_Default_Url, 'zhihutest')
         self._followerDB.clear()
 
     def test_save(self):

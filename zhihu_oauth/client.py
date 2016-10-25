@@ -39,6 +39,7 @@ except AttributeError:
     # noinspection PyDeprecation
     bs64decode = base64.decodestring
 
+
 class ZhihuClient:
     def __init__(self, client_id=None, secret=None):
         """

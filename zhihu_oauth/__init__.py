@@ -14,4 +14,4 @@ __all__ = ['ZhihuClient', 'ANONYMOUS', 'Activity', 'ActType', 'Article',
            'Topic', 'NeedCaptchaException', 'UnexpectedResponseException',
            'GetDataErrorException']
 
-__version__ = '0.0.19'
+__version__ = '0.0.21'

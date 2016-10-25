@@ -3,12 +3,14 @@ import sys
 sys.path.insert(0, os.getcwd())
 
 import unittest
+import config
+
 from db.user_db import UserDB
 
 class TestUsersDB(unittest.TestCase):
 
     def setUp(self):
-        self._userDB = UserDB('', 'zhihutest')
+        self._userDB = UserDB(config.MongoDB_Default_Url, 'zhihutest')
         self._userDB.clear()
 
     def test_save(self):

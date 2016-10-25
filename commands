@@ -1,4 +1,11 @@
 python -m tests.tests_taskDB TestTaskDB.test_failTask
 
+docker run --name crawler --link mongo:mongo -v /tmp/log/:/tmp/ snowmagic/zhihucrawler
 
-docker run --name crawler --network=bridge -v /tmp/log/:/tmp/ snowmagic/zhihucrawler
+
+docker run -d --hostname rabbit --name rabbit rabbitmq
+docker run --link rabbit:rabbit --name celery -d celery
+
+docker run --link rabbit:rabbit --rm celery celery status
+
+docker run --name mongo -d mongo

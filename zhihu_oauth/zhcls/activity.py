@@ -22,7 +22,7 @@ _verb_to_type_map = {
     'MEMBER_FOLLOW_ROUNDTABLE': 'FOLLOW_ROUNDTABLE'
 }
 
-ActType = SimpleEnum([v for _, v in _verb_to_type_map.items()])
+ActType = SimpleEnum(_verb_to_type_map.values())
 """
 ActType 是用于表示用户动态类型的枚举类，可供使用的常量有：
 
